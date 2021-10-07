@@ -1,13 +1,16 @@
+from base64 import encodestring
 import feedparser
 import webbrowser
 from html2image import Html2Image
 import telebot
+from telebot import types
+import urllib
 from dotenv import load_dotenv
 load_dotenv()
 import os
 token = os.environ.get("token")
 
-bot = telebot.TeleBot(token, parse_mode=None) # You can set parse_mode by default. HTML or MARKDOWN
+bot = telebot.TeleBot(token, parse_mode="HTML") # You can set parse_mode by default. HTML or MARKDOWN
 
 hti = Html2Image()
 hti.output_path = 'img'
@@ -23,16 +26,23 @@ for entry in feed.entries:
     title = entry.title
     hashtag = "#"+entry.category.replace(" ","")
     slug =entry.guid.rsplit('/', 1)[1]
-    instant_url = 'https://ceyloncash.com/instants/?text='+title+'&imgurl='+mediaContent
     file_name = slug+'.png'
-    description = title+"<br>"+hashtag
+    description = title+" "+hashtag
     print(description)
     print(mediaContent)
     print(file_name)
     print(hashtag)
     print("################")
-    photo = open('img\\'+file_name, 'rb')
-    bot.send_photo(chat_id, photo)
-    # bot.send_message(chat_id,description)
+    
+    instant_url = 'https://ceyloncash.com/instants/?text='+description+'&imgurl='+mediaContent
+    hti.screenshot(url=(instant_url), save_as=file_name,size=(1080, 1080))
 
-    hti.screenshot(url=instant_url, save_as=file_name,size=(1080, 1080))
+    photo = open('img\\'+file_name, 'rb')
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    itembtn1 = types.InlineKeyboardButton('Broadcast',callback_data='/send')
+    itembtn2 = types.InlineKeyboardButton('Ignore',callback_data='/ignore')
+    markup.add(itembtn1, itembtn2)
+    bot.send_photo(chat_id,photo, caption=description+"", reply_markup=markup)
+    break
+    # bot.send_photo(chat_id, photo)
+    # bot.send_message(chat_id,description)
