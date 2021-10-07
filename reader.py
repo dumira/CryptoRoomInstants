@@ -18,7 +18,7 @@ for entry in feed.entries:
     instant_url = 'https://ceyloncash.com/instants/?text='+title+'&imgurl='+mediaContent
     file_name = slug+'.png'
 
-    print(title)
+    print(title+"<br>"+hashtag)
     print(mediaContent)
     print(file_name)
     print(hashtag)
