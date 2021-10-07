@@ -24,7 +24,7 @@ for entry in feed.entries:
     if 'media_content' in entry:
         mediaContent = entry.media_content[0]['url']
     title = entry.title
-    hashtag = "#"+entry.category.replace(" ","")
+    hashtag = "%23"+entry.category.replace(" ","")
     slug =entry.guid.rsplit('/', 1)[1]
     file_name = slug+'.png'
     description = title+" "+hashtag
