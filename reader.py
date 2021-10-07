@@ -2,6 +2,7 @@ import feedparser
 import webbrowser
 from html2image import Html2Image
 hti = Html2Image()
+hti.output_path = 'img'
 
 feed = feedparser.parse("https://cointelegraph.com/rss")
 
@@ -14,9 +15,13 @@ for entry in feed.entries:
     title = entry.title
     hashtag = "#"+entry.category.replace(" ","")
     slug =entry.guid.rsplit('/', 1)[1]
+    instant_url = 'https://ceyloncash.com/instants/?text='+title+'&imgurl='+mediaContent
+    file_name = slug+'.png'
+
     print(title)
     print(mediaContent)
-    print(slug)
+    print(file_name)
     print(hashtag)
-    instant_url = 'https://ceyloncash.com/instants/?text='+title+'&imgurl='+mediaContent
-    hti.screenshot(url='file:///F:/Nisal/CryptoRoomInstants/cryptoroom-instants.html', save_as='img/'+slug+'.png',size=(1080, 1080))
+    print("################")
+
+    hti.screenshot(url=instant_url, save_as=file_name,size=(1080, 1080))
