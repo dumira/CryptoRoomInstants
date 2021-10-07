@@ -4,10 +4,13 @@ import webbrowser
 from html2image import Html2Image
 import telebot
 from telebot import types
-import urllib
+import urllib.parse
+
+import os
 from dotenv import load_dotenv
 load_dotenv()
-import os
+
+
 token = os.environ.get("token")
 
 bot = telebot.TeleBot(token, parse_mode="HTML") # You can set parse_mode by default. HTML or MARKDOWN
@@ -24,10 +27,10 @@ for entry in feed.entries:
     if 'media_content' in entry:
         mediaContent = entry.media_content[0]['url']
     title = entry.title
-    hashtag = "%23"+entry.category.replace(" ","")
+    hashtag = "#"+entry.category.replace(" ","")
     slug =entry.guid.rsplit('/', 1)[1]
     file_name = slug+'.png'
-    description = title+" "+hashtag
+    description = urllib.parse.quote_plus(title+" "+hashtag)
     print(description)
     print(mediaContent)
     print(file_name)
