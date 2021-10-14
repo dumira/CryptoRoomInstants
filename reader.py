@@ -8,9 +8,14 @@ import urllib.parse
 import pandas as pd
 
 import os
+import glob
 from dotenv import load_dotenv
 load_dotenv()
 
+# clear image folder
+files = glob.glob('img/*')
+for f in files:
+    os.remove(f)
 
 token = os.environ.get("token")
 
@@ -47,7 +52,11 @@ for entry in feed.entries:
             item_df = lastItem.copy()
         break
 
-    hashtag = "#"+entry.category.replace(" ","")
+    try:
+        hashtag = "#"+entry.category.replace(" ","")
+    except:
+        hashtag = ""
+
     slug =entry.guid.rsplit('/', 1)[1]
     file_name = slug+'.png'
     description = title+" "+hashtag
@@ -67,7 +76,7 @@ for entry in feed.entries:
     itembtn1 = types.InlineKeyboardButton('Broadcast',callback_data='/send')
     itembtn2 = types.InlineKeyboardButton('Ignore',callback_data='/ignore')
     markup.add(itembtn1, itembtn2)
-    bot.send_photo(chat_id,photo, caption=description+"", reply_markup=markup)
+    bot.send_photo(chat_id,photo, caption=description+" | "+mediaContent+" | "+id, reply_markup=markup)
 
     # If first run take only first item
     if(firstRun==1):
