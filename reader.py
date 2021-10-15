@@ -1,38 +1,37 @@
 from apscheduler.schedulers.blocking import BlockingScheduler as scheduler
-from base64 import encodestring
 import feedparser
-import webbrowser
 from html2image import Html2Image
 import telebot
 from telebot import types
 import urllib.parse
 import pandas as pd
-from datetime import datetime
 
 import os
 import glob
 from dotenv import load_dotenv
 load_dotenv()
 
-pd.set_option('display.max_column', None)
-pd.set_option('display.max_row', None)
-pd.set_option('display.float_format', lambda x: '%.2f' % x)
-
-
+# create schedule loop
 def timerFunction():
     # clear image folder
     files = glob.glob('img/*')
     for f in files:
         os.remove(f)
 
+    # get token from .env
     token = os.environ.get("token")
 
     # You can set parse_mode by default. HTML or MARKDOWN
     bot = telebot.TeleBot(token, parse_mode="HTML")
 
+    # html to image object
     hti = Html2Image()
     hti.output_path = 'img'
+
+    # out chat id
     chat_id = -469613389
+
+    # rss link
     feed = feedparser.parse("https://cointelegraph.com/rss")
 
     # load json
@@ -47,9 +46,12 @@ def timerFunction():
         firstRun = 1
 
 
+    # create a dataframe to add rss items
     item_df = pd.DataFrame(columns=['id', 'pubDate', 'description', 'image'])
 
+    # start item loop
     for entry in feed.entries:
+        # get necessary data
         if 'media_content' in entry:
             mediaContent = entry.media_content[0]['url']
         title = entry.title
@@ -80,30 +82,33 @@ def timerFunction():
         row = {'id': id, 'pubDate': pubDate, 'description': description, 'image': mediaContent}
         item_df = item_df.append(row, ignore_index=True)
 
+        # get the html and save as image
         instant_url = 'https://ceyloncash.com/instants/?text='+urllib.parse.quote_plus(description)+'&imgurl='+mediaContent
         hti.screenshot(url=(instant_url), save_as=file_name,size=(1080, 1080))
 
-        # photo = open('img\\'+file_name, 'rb')
-        # markup = types.InlineKeyboardMarkup(row_width=2)
-        # itembtn1 = types.InlineKeyboardButton('Broadcast', callback_data='/send')
-        # itembtn2 = types.InlineKeyboardButton('Ignore', callback_data='/ignore')
-        # itembtn3 = types.InlineKeyboardButton('Read More..', url=id)
-        #
-        # markup.add(itembtn1, itembtn2, itembtn3)
-        # bot.send_photo(chat_id,photo, caption=description+" | "+mediaContent, reply_markup=markup)
+        # send image to the chat
+        photo = open('img\\'+file_name, 'rb')
+        markup = types.InlineKeyboardMarkup(row_width=2)
+        itembtn1 = types.InlineKeyboardButton('Broadcast', callback_data='/send')
+        itembtn2 = types.InlineKeyboardButton('Ignore', callback_data='/ignore')
+        itembtn3 = types.InlineKeyboardButton('Read More..', url=id)
+
+        markup.add(itembtn1, itembtn2, itembtn3)
+        bot.send_photo(chat_id,photo, caption=description+" | "+mediaContent, reply_markup=markup)
 
         # If first run take only first item
         if(firstRun==1):
             break
 
+    # save last item
     item_df = item_df.head(1)
     item_df.to_json('json/lastItem.json')
 
-    print("$$##$$")
 
 # Execute your code before starting the scheduler
 print('Starting scheduler, ctrl-c to exit!')
 
+# create and run the scheduler object
 sch = scheduler()
 sch.add_job(timerFunction, 'interval', seconds=60)
 sch.start()
