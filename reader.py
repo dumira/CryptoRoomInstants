@@ -108,7 +108,7 @@ def timerFunction():
 # Execute your code before starting the scheduler
 print('Starting scheduler, ctrl-c to exit!')
 
-# create and run the scheduler object
+# create and run the scheduler object every 5 mis
 sch = scheduler()
-sch.add_job(timerFunction, 'interval', seconds=60)
+sch.add_job(timerFunction, 'interval', seconds=300)
 sch.start()
