@@ -83,18 +83,18 @@ def timerFunction():
         item_df = item_df.append(row, ignore_index=True)
 
         # get the html and save as image
-        instant_url = 'https://ceyloncash.com/instants/?text='+urllib.parse.quote_plus(description)+'&imgurl='+mediaContent
-        hti.screenshot(url=(instant_url), save_as=file_name,size=(1080, 1080))
+        # instant_url = 'https://ceyloncash.com/instants/?text='+urllib.parse.quote_plus(description)+'&imgurl='+mediaContent
+        # hti.screenshot(url=(instant_url), save_as=file_name,size=(1080, 1080))
 
         # send image to the chat
-        photo = open('img\\'+file_name, 'rb')
+        # photo = open('img\\'+file_name, 'rb')
         markup = types.InlineKeyboardMarkup(row_width=2)
-        itembtn1 = types.InlineKeyboardButton('Broadcast', callback_data='/send')
-        itembtn2 = types.InlineKeyboardButton('Ignore', callback_data='/ignore')
+        # itembtn1 = types.InlineKeyboardButton('Broadcast', callback_data='/send')
+        # itembtn2 = types.InlineKeyboardButton('Ignore', callback_data='/ignore')
         itembtn3 = types.InlineKeyboardButton('Read More..', url=id)
 
-        markup.add(itembtn1, itembtn2, itembtn3)
-        bot.send_photo(chat_id,photo, caption=description+" | "+mediaContent, reply_markup=markup)
+        markup.add(itembtn3)
+        bot.send_photo(chat_id, mediaContent, caption=description, reply_markup=markup)
 
         # If first run take only first item
         if(firstRun==1):
@@ -110,5 +110,5 @@ print('Starting scheduler, ctrl-c to exit!')
 
 # create and run the scheduler object every 5 mis
 sch = scheduler()
-sch.add_job(timerFunction, 'interval', seconds=300)
+sch.add_job(timerFunction, 'interval', seconds=5)
 sch.start()
